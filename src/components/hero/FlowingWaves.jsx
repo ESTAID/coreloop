@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useScrollProgress } from './HeroSection';
+import { useScrollProgress } from '../scrollState';
 
 const WAVE_COUNT = 5;
 const SEGMENTS = 200;

@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useScrollProgress } from './HeroSection';
+import { useScrollProgress } from '../scrollState';
 
 const POINTS_PER_LINE = 200;
 const DESKTOP_LINE_COUNT = 24;
