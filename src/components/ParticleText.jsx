@@ -2,7 +2,11 @@ import { useEffect, useRef, useCallback } from 'react';
 
 const WORDS = ['당신의 상상', '우리의 기술로', '현실이 됩니다', 'made by', 'CORELOOP'];
 const PIXEL_STEPS = 6;
-const FONT = 'bold 100px Helvetica, Arial, sans-serif';
+
+function getFont(w) {
+  const size = Math.max(32, Math.min(100, w * 0.1));
+  return `bold ${size}px Helvetica, Arial, sans-serif`;
+}
 
 function generateRandomPos(cx, cy, mag, w, h) {
   const rx = Math.random() * w;
@@ -71,7 +75,7 @@ function getTextPixels(word, w, h) {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = '#fff';
-  ctx.font = FONT;
+  ctx.font = getFont(w);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(word, w / 2, h / 2);
@@ -175,6 +179,41 @@ export default function ParticleText({ className }) {
 
     canvas.addEventListener('wheel', onWheel, { passive: false });
 
+    // Touch swipe for mobile
+    let touchStartY = 0;
+    let touchAccumulated = 0;
+    const TOUCH_THRESHOLD = 120;
+
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchAccumulated = 0;
+    };
+    const onTouchMove = (e) => {
+      e.preventDefault();
+      const s = stateRef.current;
+      if (!s) return;
+      const dy = touchStartY - e.touches[0].clientY;
+      touchStartY = e.touches[0].clientY;
+      touchAccumulated += dy;
+
+      if (touchAccumulated >= TOUCH_THRESHOLD) {
+        touchAccumulated = 0;
+        if (s.wordIndex < WORDS.length - 1) {
+          s.wordIndex++;
+          setWord(WORDS[s.wordIndex]);
+        }
+      } else if (touchAccumulated <= -TOUCH_THRESHOLD) {
+        touchAccumulated = 0;
+        if (s.wordIndex > 0) {
+          s.wordIndex--;
+          setWord(WORDS[s.wordIndex]);
+        }
+      }
+    };
+
+    canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+
     // Right-click drag to scatter
     let isRightDragging = false;
     const onMouseDown = (e) => { if (e.button === 2) isRightDragging = true; };
@@ -235,6 +274,8 @@ export default function ParticleText({ className }) {
     return () => {
       cancelAnimationFrame(animId);
       canvas.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
       canvas.removeEventListener('mousedown', onMouseDown);
       canvas.removeEventListener('mouseup', onMouseUp);
       canvas.removeEventListener('mousemove', onMouseMove);
