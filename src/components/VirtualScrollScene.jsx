@@ -1,9 +1,9 @@
-import React, { useRef, useEffect, useMemo, Suspense } from 'react';
+import React, { useRef, useState, useEffect, useMemo, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { Link } from 'react-router-dom';
-import { Mail, ArrowRight } from 'lucide-react';
+import { Mail, ArrowRight, Menu, X } from 'lucide-react';
 import { FEATURED_CAROUSEL, PORTFOLIO_DATA } from '../data/constants';
 import { scrollState } from './scrollState';
 import InfinityLines from './hero/InfinityLines';
@@ -98,6 +98,7 @@ function Scene() {
 // Main Component
 // =============================================
 export default function VirtualScrollScene() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const heroRef = useRef(null);
   const aboutRef = useRef(null);
   const serviceCardsRef = useRef(null);
@@ -238,7 +239,7 @@ export default function VirtualScrollScene() {
         camera={{ position: [0, 0, 5], fov: 60 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: false }}
-        className="!absolute !inset-0"
+        className="!absolute !inset-0 !z-0"
       >
         <color attach="background" args={['#06060c']} />
         <Suspense fallback={null}>
@@ -247,26 +248,51 @@ export default function VirtualScrollScene() {
       </Canvas>
 
       {/* === Header === */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-10 h-16 flex items-center justify-between">
-        <Link to="/" className="text-white/90 text-xl font-light tracking-wider flex items-center">
-          <span className="text-blue-400 font-bold text-2xl mr-1.5">CL</span>
-          CoreLoop
-        </Link>
-        <nav className="hidden md:flex items-center space-x-8">
-          <a href="#" className="text-white/40 text-sm hover:text-white/80 transition-colors">
-            서비스
-          </a>
-          <a href="#" className="text-white/40 text-sm hover:text-white/80 transition-colors">
-            포트폴리오
-          </a>
-          <Link to="/blog" className="text-white/40 text-sm hover:text-white/80 transition-colors">
-            블로그
-          </Link>
-        </nav>
-        <button className="flex items-center px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-full text-sm backdrop-blur-sm border border-white/10 transition-colors">
-          <Mail className="w-4 h-4 mr-2" />
-          문의하기
-        </button>
+      <header className="absolute top-0 left-0 right-0 z-50">
+        <div className="px-6 md:px-10 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button className="md:hidden p-2 text-white/70" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <Link to="/" className="text-white/90 text-xl font-light tracking-wider flex items-center">
+              <span className="text-blue-400 font-bold text-2xl mr-1.5">CL</span>
+              CoreLoop
+            </Link>
+          </div>
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="#" className="text-white/40 text-sm hover:text-white/80 transition-colors">
+              서비스
+            </a>
+            <a href="#" className="text-white/40 text-sm hover:text-white/80 transition-colors">
+              포트폴리오
+            </a>
+            <Link to="/blog" className="text-white/40 text-sm hover:text-white/80 transition-colors">
+              블로그
+            </Link>
+          </nav>
+          <button className="flex items-center px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-full text-sm backdrop-blur-sm border border-white/10 transition-colors">
+            <Mail className="w-4 h-4 mr-2" />
+            문의하기
+          </button>
+        </div>
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-black/80 backdrop-blur-md border-t border-white/10 px-6 py-3 space-y-2">
+            {[
+              { label: '서비스', to: '#' },
+              { label: '포트폴리오', to: '#' },
+              { label: '블로그', to: '/blog' },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="block py-2 text-sm text-white/60 hover:text-white/90 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* === Content Overlays === */}
@@ -274,7 +300,7 @@ export default function VirtualScrollScene() {
       {/* 1. Hero */}
       <div
         ref={heroRef}
-        className="fixed inset-0 flex items-center justify-center z-10"
+        className="fixed inset-0 flex items-center justify-center z-10 pt-16"
         style={{ pointerEvents: 'none' }}
       >
         <div className="text-center">
@@ -290,7 +316,7 @@ export default function VirtualScrollScene() {
       {/* 2. About / Services Intro */}
       <div
         ref={aboutRef}
-        className="fixed inset-0 flex items-center justify-center z-10"
+        className="fixed inset-0 flex items-center justify-center z-10 pt-16"
         style={{ opacity: 0, pointerEvents: 'none' }}
       >
         <div className="text-center max-w-2xl mx-auto px-6">
@@ -321,7 +347,7 @@ export default function VirtualScrollScene() {
       {/* 3. Service Cards */}
       <div
         ref={serviceCardsRef}
-        className="fixed inset-0 flex items-center justify-center z-10"
+        className="fixed inset-0 flex items-start md:items-center justify-center z-10 pt-20 md:pt-0 overflow-y-auto"
         style={{ opacity: 0, pointerEvents: 'none' }}
       >
         <div className="max-w-5xl mx-auto px-6 w-full">
@@ -357,7 +383,7 @@ export default function VirtualScrollScene() {
       {/* 4. Portfolio */}
       <div
         ref={portfolioRef}
-        className="fixed inset-0 flex items-center justify-center z-10"
+        className="fixed inset-0 flex items-start md:items-center justify-center z-10 pt-20 md:pt-0 overflow-y-auto"
         style={{ opacity: 0, pointerEvents: 'none' }}
       >
         <div className="max-w-5xl mx-auto px-6 w-full">
@@ -395,7 +421,7 @@ export default function VirtualScrollScene() {
       {/* 5. CTA */}
       <div
         ref={ctaRef}
-        className="fixed inset-0 flex items-center justify-center z-10"
+        className="fixed inset-0 flex items-center justify-center z-10 pt-16"
         style={{ opacity: 0, pointerEvents: 'none' }}
       >
         <div className="text-center max-w-xl mx-auto px-6">

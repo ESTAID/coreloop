@@ -44,6 +44,26 @@ const Header = () => {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-2">
+          {[
+            { label: '서비스', to: '#' },
+            { label: '포트폴리오', to: '#' },
+            { label: '블로그', to: '/blog' },
+          ].map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
+              className="block py-2 text-[15px] font-medium text-gray-700 hover:text-blue-600 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
     </header>
   );
 };
